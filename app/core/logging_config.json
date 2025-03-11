@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "disable_existing_loggers": false,
+  "formatters": {
+    "standard": {
+      "format": "[%(asctime)s] %(name)s.%(funcName)s() (ln %(lineno)d):%(levelname)s - %(processName)s - %(trace_id)s - %(message)s",
+      "datefmt": "%Y-%m-%d %H:%M:%S",
+      "class": "app.core.logging_config.RequestFormatter"
+    }
+  },
+  "filters": {
+    "trace_id_filter": {
+      "()": "app.core.logging_config.TraceIdFilter"
+    }
+  },
+  "handlers": {
+    "console": {
+      "class": "logging.StreamHandler",
+      "level": "INFO",
+      "formatter": "standard",
+      "filters": ["trace_id_filter"],
+      "stream": "ext://sys.stdout"
+    },
+    "rotating_file": {
+      "class": "concurrent_log_handler.ConcurrentRotatingFileHandler",
+      "level": "INFO",
+      "formatter": "standard",
+      "filters": ["trace_id_filter"],
+      "filename": "logs/app.log",
+      "maxBytes": 2097152,
+      "backupCount": 25,
+      "encoding": "utf8"
+    }
+  },
+  "loggers": {
+    "": {
+      "handlers": ["console", "rotating_file"],
+      "level": "INFO",
+      "propagate": true
+    },
+    "uvicorn": {
+      "handlers": ["console", "rotating_file"],
+      "level": "INFO",
+      "propagate": false
+    },
+    "uvicorn.error": {
+      "handlers": ["console", "rotating_file"],
+      "level": "INFO",
+      "propagate": false
+    },
+    "uvicorn.access": {
+      "handlers": ["console", "rotating_file"],
+      "level": "INFO",
+      "propagate": false
+    }
+  }
+}

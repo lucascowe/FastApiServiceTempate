@@ -1,0 +1,8 @@
+services:
+  fastapi-service:
+    build: .
+    image: fastapi-service
+
+## Uncomment for dev work to update service without rebuilding
+    volumes:
+      - $PWD/app:/service/app

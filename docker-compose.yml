@@ -1,0 +1,88 @@
+networks:
+  fastapi-service-network:
+    name: fastapi-service-network
+    driver: bridge
+
+## Uncomment if volumes are needed
+#volumes:
+#  postgres-data:
+#  mongodb_data:
+#  redis_data:
+
+services:
+  fastapi-service:
+    build: docker
+    ports:
+      - ${SERVICE_ID:-0.0.0.0}:${EXTERNAL_PORT:-8000}:${INTERNAL_PORT:-8000}
+    networks:
+      - fastapi-service-network
+    volumes:
+      - $PWD/logs:/service/logs
+    env_file:
+      - $PWD/.env
+
+## Uncomment if additional services are needed
+#    depends_on:
+#      - redis
+#      - postgres
+#      - mongodb
+
+#  redis:
+#    image: redis:alpine
+#    container_name: redis
+#    command: redis-server --requirepass ${REDIS_PASSWORD:-} --user default on +@all ~* >${REDIS_PASSWORD:-} --user ${REDIS_USER:-} on +@all ~* >${REDIS_PASSWORD:-}
+#    ports:
+#      - "6379:6379"
+#    healthcheck:
+#      test: [ "CMD", "redis-cli", "ping" ]
+#      interval: 5s
+#      timeout: 3s
+#      retries: 3
+#    networks:
+#      - fastapi-service-network
+#    environment:
+#      REDIS_USER: ${REDIS_USER:-}
+#      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+#    volumes:
+#        - redis_data:/data
+#
+#  postgres:
+#    image: postgres:alpine
+#    container_name: postgresql
+#    environment:
+#      POSTGRES_USER: ${POSTGRES_USER:-}
+#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+#      POSTGRES_DB: ${POSTGRES_DB:-}
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - postgres-data:/var/lib/postgresql/data
+#    healthcheck:
+#      test: ["CMD-SHELL", "pg_isready -U user"]
+#      interval: 5s
+#      timeout: 5s
+#      retries: 5
+#    networks:
+#      - fastapi-service-network
+#
+#  mongodb:
+#    image: mongo:latest
+#    container_name: mongodb
+#    restart: always
+#    ports:
+#      - "27017:27017"
+#    environment:
+#      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-}
+#      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-}
+#      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-}
+#    healthcheck:
+#      test: echo 'db.runCommand("ping").ok' | mongosh --quiet mongodb://${MONGO_USER:-}:${MONGO_PASSWORD:-}@localhost:27017/${MONGO_DATABASE:-} --authenticationDatabase admin
+#      interval: 10s
+#      timeout: 5s
+#      retries: 3
+#      start_period: 30s
+#    volumes:
+#      - mongodb_data:/data/db
+#      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+#    networks:
+#      - fastapi-service-network
